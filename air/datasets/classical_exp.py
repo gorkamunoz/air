@@ -115,6 +115,13 @@ def hammer_electric_dataset(dataset_size=500,
                             device = 'cuda' if torch.cuda.is_available() else 'cpu',
                             dims_concat = False):    
 
+    '''
+    Creates a dataset with hammer and electric actions, where the input to the models is a single trajectory. 
+    Action representation as one-hot encoding. 
+
+    Note: this is not the same as the dataset in our paper, where the input is two trajectories (see below).
+    '''
+
     if key_jax is None:
         key = jax.random.PRNGKey(1)
     else:
@@ -175,23 +182,28 @@ def hammer_electric_dataset(dataset_size=500,
 
     return DataLoaders(loader, loader_test), loader_test, loader
 
-# %% ../../nbs/datasets/02_classical_experiment.ipynb 31
-def hammer_electric_dataset_double_traj(dataset_size=500,
-                                        size_train = 0.8,
-                                        BS = 100,
-                                        key_jax = None,
-                                        times = np.arange(0.,2,0.1),
-                                        act_rep_val = 1, 
-                                        alpha_1 = 1.,
-                                        alpha_2 = 1.,
-                                        alpha_ext = 0.,
-                                        device = 'cuda' if torch.cuda.is_available() else 'cpu', 
-                                        min_mass = 0.4, 
-                                        max_mass = 1.75,
-                                        min_charge = -1.,
-                                        max_charge = -0.5,
-                                        dims_concat = False
+# %% ../../nbs/datasets/02_classical_experiment.ipynb 29
+def hammer_electric_dataset_double_traj(dataset_size=500, # Total size of the dataset 
+                                        size_train = 0.8, # Proportion of the dataset to be used for training
+                                        BS = 100, # Batch size for the dataloaders
+                                        key_jax = None, # Seed for the random number generator in JAX
+                                        times = np.arange(0.,2,0.1), # Time points for the trajectories
+                                        act_rep_val = 1, # Value for the one-hot encoding of the action
+                                        alpha_1 = 1., # Alpha for hammer action
+                                        alpha_2 = 1., # Alpha for electric action
+                                        alpha_ext = 0., # External alpha parameter
+                                        device = 'cuda' if torch.cuda.is_available() else 'cpu', # Device to use for computations
+                                        min_mass = 0.4, # Minimum mass for the objects
+                                        max_mass = 1.75, # Maximum mass for the objects
+                                        min_charge = -1., # Minimum charge for the objects
+                                        max_charge = -0.5, # Maximum charge for the objects
+                                        dims_concat = False # Whether to concatenate dimensions
                                         ): 
+
+    '''
+    Creates a dataset with hammer and electric actions, where the input to the models is two trajectories (hammer and electric). 
+    Action representation as one-hot encoding.
+    '''
 
 
     assert int(dataset_size/2) == dataset_size/2

@@ -13,6 +13,21 @@ from ..losses_metrics import get_mig
 
 # %% ../../nbs/datasets/01_abstract_experiment.ipynb 5
 def random_functions(x, m, seed = 0):
+    '''
+    Generate m random nonlinear functions of input x using:
+    
+    f_i(x) = sin(w_i^T x + b_i)
+    
+    where w_i and b_i are randomly sampled weights and biases.
+
+    Args:
+        x: Input tensor of shape (n_samples, n_features)
+        m: Number of random functions to generate
+        seed: Random seed for reproducibility
+    Returns:
+        Tensor of shape (n_samples, m) with the outputs of the m random functions
+    '''
+
     torch.random.manual_seed(seed)  # For reproducibility    
     k = x.shape[-1]
     # Create random weights and biases for m functions, each depending on all k inputs
@@ -129,7 +144,24 @@ def dataset_abstract_no_actions(N, num_h = 4, dim_x = 10, size_train = 0.8, BS =
 
 # %% ../../nbs/datasets/01_abstract_experiment.ipynb 13
 def create_data_mig(N, num_h, seed_funcs, bins, dim_x):
-    ''' Creates the data for MIG for the abstract experiment '''
+    
+    '''
+    Creates the data needed to compute the Mutual Information Gap (MIG) for the abstract experiment 
+
+    Parameters
+    ----------
+    - N: Number of samples
+    - num_h: Number of hidden factors
+    - seed_funcs: Seed for random functions
+    - bins: Bins for discretization
+    - dim_x: Dimension of the observation space
+    
+    Returns
+    -------
+    - true_factors: The true hidden factors
+    - data: The generated dataset with observations and actions
+    - entropy: Entropy of each hidden factor
+    '''
     
     true_factors = torch.rand(N, num_h)
 
@@ -156,11 +188,30 @@ def create_data_mig(N, num_h, seed_funcs, bins, dim_x):
 # %% ../../nbs/datasets/01_abstract_experiment.ipynb 16
 class mig_calc_abs_data():
 
+    '''
+    Class to compute the Mutual Information Gap (MIG) for the abstract experiment dataset.
+
+    Parameters
+    ----------
+    - N: Number of samples
+    - num_h: Number of hidden factors
+    - dim_x: Dimension of the observation space
+    - seed_funcs: Seed for random functions
+    - torch_seed: Seed for torch random number generator
+    - device: Device to which tensors will be moved (CPU or GPU)
+    - action: Action to be used in the dataset (None, False, or specific action)
+    - bins: Number of bins for discretization
+    - normalized_MI: Whether to use normalized mutual information
+    '''
+
     def __init__(self, N, num_h, dim_x, seed_funcs, 
                  torch_seed = None, device = 'cuda' if torch.cuda.is_available() else 'cpu', 
                  action = None, bins = 20,
                  normalized_MI = True
                 ):
+
+        
+
         self.N = N
         self.dim_x = dim_x
         self.num_h = num_h

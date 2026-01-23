@@ -339,6 +339,26 @@ class StateTomography(object):
 # %% ../../nbs/datasets/03_quantum_experiment.ipynb 7
 def generate_quantum_dataset(tomography, batch_size, device = 'cuda' if torch.cuda.is_available() else 'cpu'):
 
+    '''
+    Creates a dataset with all actions, where the input to the models is a single trajectory. Returns fastai dataloaders. 
+    Action representation as concatenation of real and imaginary parts of the (4,4) action matrix.
+
+    Parameters
+    ----------
+    tomography : StateTomography
+        An instance of the StateTomography class containing the dataset parameters.
+    batch_size : int
+        The batch size for the dataloaders.
+    device : str, optional
+        The device to use for the tensors (default is 'cuda' if available, else 'cpu'). 
+    Returns
+    -------
+    DataLoaders
+        A fastai DataLoaders object containing the training and test dataloaders.
+    DataLoader_torch
+        A PyTorch DataLoader for the training data.
+    '''
+
     # Generate the dataset
     inputs, outputs, actions = tomography.get_training_data()
 
@@ -380,7 +400,23 @@ def generate_quantum_dataset(tomography, batch_size, device = 'cuda' if torch.cu
     return DataLoaders(loader, loader_test), loader
 
 # %% ../../nbs/datasets/03_quantum_experiment.ipynb 10
-def get_test_data(tomography, num_datapoint = 100):        
+def get_test_data(tomography, num_datapoint = 100):     
+
+    '''
+    Creates test data for hypothesis testing of a representation.  We consider states depending on one pauli matrix 
+    at a time, with a variable amplitude in the Bloch representation.
+
+    Parameters
+    ----------
+    tomography : StateTomography
+        An instance of the StateTomography class containing the dataset parameters.
+    num_datapoint : int, optional
+        The number of datapoints to generate for each hypothesis state (default is 100).
+    Returns
+    -------
+    torch.Tensor
+        A tensor containing the generated test datapoints.
+    '''   
     
     datapoints = torch.empty((2**(2*tomography.num_qubits)-1, num_datapoint, tomography.num_measure))
     
