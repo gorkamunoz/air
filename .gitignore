@@ -12,6 +12,7 @@ Gemfile.lock
 _tmp*
 tmp*
 tags
+_proc/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
