@@ -67,7 +67,8 @@ def create_traj_magnetic(mass, charge, times):
 
 
 
-def create_traj(key, times, alpha_1, alpha_2, alpha_ext, num_samples,
+def create_traj(times, alpha_1, alpha_2, alpha_ext, num_samples,
+                key = 1,
                 min_mass = 0.4, 
                 max_mass = 1.75,
                 min_charge = -1.,
@@ -90,7 +91,7 @@ def create_traj(key, times, alpha_1, alpha_2, alpha_ext, num_samples,
 
 
 # %% ../../nbs/datasets/02_classical_experiment.ipynb 7
-def create_traj_mass(key, times, masses):
+def create_traj_mass(key = 1, times = None, masses = None):
   """Creates the trajectory of the particles given the alphas, created st size(traj)=R_max~1, traj=[[x1,y1],[x2,y2],...]"""
 
   traj_H = jax.vmap(create_traj_hammer, in_axes=(0,None))(masses, times)  
@@ -98,7 +99,7 @@ def create_traj_mass(key, times, masses):
   return traj_H 
 
 
-def create_traj_charge(key, times, masses, charges):
+def create_traj_charge(key = 1, times = None, masses = None, charges = None):
   """Creates the trajectory of the particles given the alphas, created st size(traj)=R_max~1, traj=[[x1,y1],[x2,y2],...]"""
 
   traj_E = jax.vmap(create_traj_electric, in_axes=(0,0,None))(masses, charges, times)  
@@ -195,7 +196,7 @@ def hammer_electric_dataset_double_traj(dataset_size=500, # Total size of the da
                                         device = 'cuda' if torch.cuda.is_available() else 'cpu', # Device to use for computations
                                         min_mass = 0.4, # Minimum mass for the objects
                                         max_mass = 1.75, # Maximum mass for the objects
-                                        min_charge = -1., # Minimum charge for the objects
+                                        min_charge = -1.7, # Minimum charge for the objects
                                         max_charge = -0.5, # Maximum charge for the objects
                                         dims_concat = False # Whether to concatenate dimensions
                                         ): 
@@ -217,8 +218,8 @@ def hammer_electric_dataset_double_traj(dataset_size=500, # Total size of the da
 
         
     # Get trajs for both actions (remember to keep alphas at 1)
-    trajs_h, trajs_e = create_traj(key,
-                                    times, 
+    trajs_h, trajs_e = create_traj(key = key,
+                                    times = times, 
                                     alpha_1 = alpha_1, 
                                     alpha_2 = alpha_2, 
                                     alpha_ext = alpha_ext, 

@@ -37,7 +37,7 @@ def random_functions(x, m, seed = 0):
     return torch.sin(x @ weights.t() + biases)
 
 # %% ../../nbs/datasets/01_abstract_experiment.ipynb 6
-def dataset_abstract(N, num_h = 4, dim_x = None, dim_y = 10, size_train = 0.8, BS = 100,
+def dataset_abstract(N, num_c = 4, dim_x = None, dim_y = 10, size_train = 0.8, BS = 100,
                     device = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
                     seed_funcs = 0
                     ):
@@ -46,7 +46,7 @@ def dataset_abstract(N, num_h = 4, dim_x = None, dim_y = 10, size_train = 0.8, B
     
     Parameters:
     - N: Number of samples
-    - num_h: Number of hidden factors
+    - num_c: Number of hidden factors
     - dim_y: Dimensionality of the output
     - size_train: Proportion of data to use for training
     - BS: Batch size
@@ -57,7 +57,7 @@ def dataset_abstract(N, num_h = 4, dim_x = None, dim_y = 10, size_train = 0.8, B
     """
 
     torch.random.manual_seed(0)  # For reproducibility
-    h = torch.rand((N, num_h))
+    h = torch.rand((N, num_c))
 
     y1 = random_functions(h[:,:2], dim_y, seed_funcs)
     y2 = random_functions(h[:,1:], dim_y, seed_funcs)
@@ -96,7 +96,7 @@ def dataset_abstract(N, num_h = 4, dim_x = None, dim_y = 10, size_train = 0.8, B
     return DataLoaders(loader, loader_test), loader_test, loader
 
 # %% ../../nbs/datasets/01_abstract_experiment.ipynb 9
-def dataset_abstract_no_actions(N, num_h = 4, dim_x = 10, size_train = 0.8, BS = 100,
+def dataset_abstract_no_actions(N, num_c = 4, dim_x = 10, size_train = 0.8, BS = 100,
                     device = torch.device("cuda" if torch.cuda.is_available() else "cpu"),
                     seed_funcs = 0, torch_seed = None
                     ):
@@ -106,7 +106,7 @@ def dataset_abstract_no_actions(N, num_h = 4, dim_x = 10, size_train = 0.8, BS =
     
     Parameters:
     - N: Number of samples
-    - num_h: Number of hidden factors
+    - num_c: Number of hidden factors
     - size_train: Proportion of data to use for training
     - BS: Batch size
     
@@ -119,7 +119,7 @@ def dataset_abstract_no_actions(N, num_h = 4, dim_x = 10, size_train = 0.8, BS =
     else:
         torch.random.manual_seed(torch_seed)  # For reproducibility
         
-    h = torch.rand((N, num_h))
+    h = torch.rand((N, num_c))
 
     x = random_functions(h.clone(), dim_x, seed_funcs) 
 
@@ -143,7 +143,7 @@ def dataset_abstract_no_actions(N, num_h = 4, dim_x = 10, size_train = 0.8, BS =
     return DataLoaders(loader, loader_test), loader_test, loader
 
 # %% ../../nbs/datasets/01_abstract_experiment.ipynb 13
-def create_data_mig(N, num_h, seed_funcs, bins, dim_x):
+def create_data_mig(N, num_c, seed_funcs, bins, dim_x):
     
     '''
     Creates the data needed to compute the Mutual Information Gap (MIG) for the abstract experiment 
@@ -151,7 +151,7 @@ def create_data_mig(N, num_h, seed_funcs, bins, dim_x):
     Parameters
     ----------
     - N: Number of samples
-    - num_h: Number of hidden factors
+    - num_c: Number of hidden factors
     - seed_funcs: Seed for random functions
     - bins: Bins for discretization
     - dim_x: Dimension of the observation space
@@ -163,10 +163,10 @@ def create_data_mig(N, num_h, seed_funcs, bins, dim_x):
     - entropy: Entropy of each hidden factor
     '''
     
-    true_factors = torch.rand(N, num_h)
+    true_factors = torch.rand(N, num_c)
 
-    entropy = np.zeros((num_h))
-    for idx in range(num_h):
+    entropy = np.zeros((num_c))
+    for idx in range(num_c):
         cj = true_factors[:, idx].numpy()
         cj = np.digitize(cj, np.histogram(cj, bins = bins)[1][:-1])
         entropy[idx] = sklearn.metrics.normalized_mutual_info_score(cj, cj)
@@ -194,7 +194,7 @@ class mig_calc_abs_data():
     Parameters
     ----------
     - N: Number of samples
-    - num_h: Number of hidden factors
+    - num_c: Number of hidden factors
     - dim_x: Dimension of the observation space
     - seed_funcs: Seed for random functions
     - torch_seed: Seed for torch random number generator
@@ -204,7 +204,7 @@ class mig_calc_abs_data():
     - normalized_MI: Whether to use normalized mutual information
     '''
 
-    def __init__(self, N, num_h, dim_x, seed_funcs, 
+    def __init__(self, N, num_c, dim_x, seed_funcs, 
                  torch_seed = None, device = 'cuda' if torch.cuda.is_available() else 'cpu', 
                  action = None, bins = 20,
                  normalized_MI = True
@@ -214,7 +214,7 @@ class mig_calc_abs_data():
 
         self.N = N
         self.dim_x = dim_x
-        self.num_h = num_h
+        self.num_c = num_c
         self.action = action
         self.seed_funcs = seed_funcs
         self.torch_seed = torch_seed 
@@ -231,10 +231,10 @@ class mig_calc_abs_data():
         else:
             torch.random.manual_seed(self.torch_seed)
 
-        self.true_factors = torch.rand(self.N, self.num_h)
+        self.true_factors = torch.rand(self.N, self.num_c)
 
-        self.entropy = np.zeros((self.num_h))
-        for idx in range(self.num_h):
+        self.entropy = np.zeros((self.num_c))
+        for idx in range(self.num_c):
             cj = self.true_factors[:, idx].numpy()
             cj = np.digitize(cj, np.histogram(cj, bins = self.bins)[1][:-1])
             self.entropy[idx] = sklearn.metrics.normalized_mutual_info_score(cj, cj)
@@ -270,9 +270,9 @@ class mig_calc_abs_data():
         input_mi = mu.detach().cpu().numpy() if compute_with_mu else z
 
         if self.action == False:
-            mi, mig = get_mig(input_mi, self.true_factors, self.num_h, bins = self.bins, normalized_MI = self.normalized_MI)            
+            mi, mig = get_mig(input_mi, self.true_factors, self.num_c, bins = self.bins, normalized_MI = self.normalized_MI)            
         else:
-            mi, mig = get_mig(input_mi, self.true_factors.repeat((2,1)), self.num_h, bins = self.bins, normalized_MI = self.normalized_MI)
+            mi, mig = get_mig(input_mi, self.true_factors.repeat((2,1)), self.num_c, bins = self.bins, normalized_MI = self.normalized_MI)
 
         if only_mig:
             return mig
@@ -284,6 +284,6 @@ class mig_calc_abs_data():
 
         # Rest of neurons
         ent_mi = np.delete(mi.copy(), disentangled_var, axis = 0)        
-        ent_mig = ((ent_mi[:,0]-ent_mi[:,1])/self.entropy[np.delete(np.arange(self.num_h), disentangled_var)]).mean()
+        ent_mig = ((ent_mi[:,0]-ent_mi[:,1])/self.entropy[np.delete(np.arange(self.num_c), disentangled_var)]).mean()
 
         return mi, mig, dis_mig, ent_mig
