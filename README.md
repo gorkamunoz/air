@@ -29,7 +29,6 @@ fastai == 2.8.1
 torch == 2.6.0+cu124
 scikit-learn == 1.6.1
 jax == 0.6.0
-nbdev == 2.4.2
 ```
 
 ## Examples
