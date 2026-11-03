@@ -47,7 +47,7 @@ We consider three example datasets:
   transitions induced by discrete actions.
 
 - **Quantum:** A dataset based on simulated quantum systems, where
-  actions correspond to interventions on quantum states.
+  actions correspond to interventions (or measurements) on quantum states.
 
 ## Citation
 
